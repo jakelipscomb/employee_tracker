@@ -1,16 +1,26 @@
-import * as mysql from 'mysql2'
+import mysql from 'mysql2';
 import inquirer from 'inquirer';
 
+const db = mysql.createConnection (
+    {
+    host: 'localhost',
+    user: 'root',
+    password: '1234',
+    database: 'company_db'
+    }
+);
 
-// const db = mysql.createConnection (
-//     {
-//     host: 'localhost',
-//     user: 'root',
-//     password: '1234',
-//     database: 'company_db'
-//     },
-//     console.log('Connecting to the company db...')
-// );
+db.connect(err => {
+    if (err) throw err;
+    else {
+        console.log("********************")
+        console.log("*                  *")
+        console.log("* Employee Tracker *")
+        console.log("*                  *")
+        console.log("********************")
+    }
+})
+console.log('Connecting to the company db...')
 
 const choices = [
         {
