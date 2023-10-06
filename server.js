@@ -1,5 +1,5 @@
-import mysql from 'mysql2';
-import inquirer from 'inquirer';
+const mysql = require('mysql');
+const inquirer = require('inquirer');
 
 const db = mysql.createConnection (
     {
@@ -12,17 +12,21 @@ const db = mysql.createConnection (
 
 db.connect(err => {
     if (err) throw err;
-    else {
+    console.log('Connected to the company database.');
+    start();    
+});
+
+start = () => {
         console.log("********************")
         console.log("*                  *")
         console.log("* Employee Tracker *")
         console.log("*                  *")
         console.log("********************")
-    }
-})
-console.log('Connecting to the company db...')
+        promptUser();
+    };
 
-const choices = [
+const promptUser = () => {
+    inquirer.prompt([
         {
             type: 'list',
             name: 'choices',
@@ -33,20 +37,14 @@ const choices = [
                 {key: 'view all employees', value: 'ALL_EMPLOYEES'},
                 {key: 'add a role', value: 'ADD_A_ROLE'},
                 {key: 'add a department', value: 'ADD_A_DEPARTMENT'},
-                {key: 'add a department', value: 'ADD_AN_EMPLOYEE'},
-                {key: 'update an employee role', value: 'UPDATE_EMPLOYEE_ROLE'}
+                {key: 'add an employee', value: 'ADD_AN_EMPLOYEE'},
+                {key: 'update an employee role', value: 'UPDATE_EMPLOYEE_ROLE'},
+                {key: 'view employees by department', value: 'VIEW_EMPLOYEES_BY_DEPARTMENT'},
+                {key: 'view employees by manager', value: 'VIEW_EMPLOYEES_BY_MANAGER'},
+                {key: 'delete a department', value: 'DELETE_A_DEPARTMENT'},
+                {key: 'delete a role', value: 'DELETE_A_ROLE'},
+                {key: 'delete an employee', value: 'DELETE_AN_EMPLOYEE'},
             ]
         }
-]
-
-function init() {
-    inquirer.prompt(choices)
-    .then((res) => {
-        console.log(res.key);
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-}
-
-init();
+    ])
+};

@@ -1,9 +1,19 @@
 {
-  "type": "module",
-  "exports": "./index.js",
-  "engines": {
-    "node": ">=16"
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "A command line application that allows the user to view and manage the departments, roles, and employees in a company.",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakelipscomb/employee_tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "inquirer": "^8.2.4",
     "mysql2": "^2.2.5"
