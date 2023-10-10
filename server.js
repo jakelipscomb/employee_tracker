@@ -1,6 +1,6 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const consoleTable = require('console.table');
+const cTable = require('console.table');
 
 const db = mysql.createConnection (
     {
@@ -18,11 +18,11 @@ db.connect(err => {
 });
 
 start = () => {
-        console.log("********************")
-        console.log("*                  *")
-        console.log("* Employee Tracker *")
-        console.log("*                  *")
-        console.log("********************")
+        console.log("***************************************")
+        console.log("*                                     *")
+        console.log("*          Employee Tracker           *")
+        console.log("*                                     *")
+        console.log("***************************************")
         promptUser();
     };
 
@@ -155,7 +155,7 @@ const addDepartment = () => {
     inquirer.prompt([
         {
             type: 'input',
-            name: 'name',
+            name: 'department_name',
             message: 'What is the name of the department?'
         }
     ])
