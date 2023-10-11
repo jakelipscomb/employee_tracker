@@ -121,28 +121,29 @@ const addRole = () => {
     db.query('SELECT * FROM department', (err, rows) => {
         if (err) throw err;
         const departments = rows.map(department => {
-            return {name: department.name, value: department.id}
+            return { name: department.department_name, value: department.id };
         });
         inquirer.prompt([
             {
                 type: 'input',
                 name: 'title',
-                message: 'What is the title of the role?'
+                message: 'What is the title of the role?',
             },
             {
                 type: 'input',
                 name: 'salary',
-                message: 'What is the salary of the role?'
+                message: 'What is the salary of the role?',
             },
             {
                 type: 'list',
                 name: 'department_id',
                 message: 'Which department does the role belong to?',
-                choices: departments
-            }
+                choices: departments.map(department => department.name),
+            },
         ])
         .then((answers) => {
-            db.query('INSERT INTO role SET ?', answers, (err) => {
+            const department = departments.find(department => department.name === answers.department_id);
+            db.query('INSERT INTO role SET ?', { title: answers.title, salary: answers.salary, department_id: department.id }, (err) => {
                 if (err) throw err;
                 console.log('The role was added successfully!');
                 promptUser();
@@ -171,14 +172,17 @@ const addDepartment = () => {
 const addEmployee = () => {
     db.query('SELECT * FROM role', (err, rows) => {
         if (err) throw err;
-        const roles = rows.map(role => {
-            return {name: role.title, value: role.id}
-        });
         db.query('SELECT * FROM employee', (err, rows) => {
+        if (err) throw err;
+        const employees = rows.map(employee => {
+            return { name: employee.first_name + ' ' + employee.last_name, value: employee.id };
+        });
+        db.query('SELECT * FROM department', (err, rows) => {
             if (err) throw err;
-            const employees = rows.map(employee => {
-                return {name: employee.first_name + ' ' + employee.last_name, value: employee.id}
+            const departments = rows.map(department => {
+                return { name: department.department_name, value: department.id };
             });
+            employees.unshift({ name: 'No Manager', value: null });
             inquirer.prompt([
                 {
                     type: 'input',
@@ -191,17 +195,27 @@ const addEmployee = () => {
                     message: 'What is the last name of the employee?'
                 },
                 {
+                    type: 'input',
+                    name: 'title',
+                    message: 'What is the title of the employee?',
+                },
+                {
                     type: 'list',
-                    name: 'role_id',
-                    message: 'What is the role of the employee?',
-                    choices: roles
+                    name: 'department',
+                    message: 'What is the department of the employee?',
+                    choices: departments.map(department => department.name),
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'What is the salary of the employee?',
                 },
                 {
                     type: 'list',
                     name: 'manager_id',
                     message: 'Who is the manager of the employee?',
                     choices: employees
-                }
+                },
             ])
             .then((answers) => {
                 db.query('INSERT INTO employee SET ?', answers, (err) => {
@@ -212,38 +226,68 @@ const addEmployee = () => {
             });
         });
     });
+});
 };
 
 const updateEmployeeRole = () => {
-    db.query('SELECT * FROM role', (err, rows) => {
+    db.query('SELECT * FROM role', (err, roleRows) => {
         if (err) throw err;
-        const roles = rows.map(role => {
-            return {name: role.title, value: role.id}
+        const roles = roleRows.map(role => {
+            return { name: role.title, value: role.id, department_id: role.department_id };
         });
-        db.query('SELECT * FROM employee', (err, rows) => {
+        
+        db.query('SELECT * FROM employee', (err, employeeRows) => {
             if (err) throw err;
-            const employees = rows.map(employee => {
-                return {name: employee.first_name + ' ' + employee.last_name, value: employee.id}
+            const employees = employeeRows.map(employee => {
+                return { name: employee.first_name + ' ' + employee.last_name, value: employee.id };
             });
-            inquirer.prompt([
-                {
-                    type: 'list',
-                    name: 'employee_id',
-                    message: 'Which employee would you like to update?',
-                    choices: employees
-                },
-                {
-                    type: 'list',
-                    name: 'role_id',
-                    message: 'What is the new role of the employee?',
-                    choices: roles
-                }
-            ])
-            .then((answers) => {
-                db.query('UPDATE employee SET role_id = ? WHERE id = ?', [answers.role_id, answers.employee_id], (err) => {
-                    if (err) throw err;
-                    console.log('The employee was updated successfully!');
-                    promptUser();
+
+            // Query departments and create a list of department names
+            db.query('SELECT * FROM department', (err, departmentRows) => {
+                if (err) throw err;
+                const departments = departmentRows.map(department => {
+                    return { name: department.department_name, value: department.id };
+                });
+
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'employee_id',
+                        message: 'Which employee would you like to update?',
+                        choices: employees
+                    },
+                    {
+                        type: 'list',
+                        name: 'role_id',
+                        message: 'What is the new role of the employee?',
+                        choices: roles
+                    },
+                    {
+                        type: 'list',
+                        name: 'department_id',
+                        message: 'What is the new department of the employee?',
+                        choices: departments
+                    }
+                ])
+                .then((answers) => {
+                    // Retrieve the role title and department_id based on the selected role_id
+                    const selectedRole = roles.find(role => role.value === answers.role_id);
+                    if (!selectedRole) {
+                        console.log('Role not found.');
+                        return promptUser();
+                    }
+
+                    const selectedDepartment = departments.find(department => department.value === answers.department_id);
+                    if (!selectedDepartment) {
+                        console.log('Department not found.');
+                        return promptUser();
+                    }
+
+                    db.query('UPDATE employee SET title = ?, department = ? WHERE id = ?', [selectedRole.name, selectedDepartment.name, answers.employee_id], (err) => {
+                        if (err) throw err;
+                        console.log('The employee was updated successfully!');
+                        promptUser();
+                    });
                 });
             });
         });
@@ -266,30 +310,6 @@ const viewEmployeesByDepartment = () => {
         ])
         .then((answers) => {
             db.query('SELECT * FROM employee WHERE role_id IN (SELECT id FROM role WHERE department_id = ?)', answers.department_id, (err, rows) => {
-                if (err) throw err;
-                console.table(rows);
-                promptUser();
-            });
-        });
-    });
-};
-
-const viewEmployeesByManager = () => {
-    db.query('SELECT * FROM employee', (err, rows) => {
-        if (err) throw err;
-        const managers = rows.map(employee => {
-            return {name: employee.first_name + ' ' + employee.last_name, value: employee.id}
-        });
-        inquirer.prompt([
-            {
-                type: 'list',
-                name: 'manager_id',
-                message: 'Which manager would you like to view?',
-                choices: managers
-            }
-        ])
-        .then((answers) => {
-            db.query('SELECT * FROM employee WHERE manager_id = ?', answers.manager_id, (err, rows) => {
                 if (err) throw err;
                 console.table(rows);
                 promptUser();
