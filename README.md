@@ -3,7 +3,7 @@
   ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ## Click the screenshot to watch my walkthrough video on YouTube!
-[![Watch the video]()]()
+[![Watch the video](./assets/employee-tracker.png)](https://www.youtube.com/watch?v=MV7hX06sJKQ)
 
   ## Table of Contents
   * [Description](#description)
@@ -15,13 +15,14 @@
 * [License](#license)
 
 ## Description
-The purpose of this project was to create a database that can be used to track employees, their roles, and their departments. This application is run through the command line and uses MySQL to store and retrieve data. The user can add, view, and update employees, roles, and departments. The user can also view employees by manager and view the total utilized budget of a department. 
+The purpose of this project was to create a database that can be used to track employees, their roles, and their departments. This application is run through the command line and uses MySQL to store and retrieve data. The user can add, view, update, and delete employees, roles, and departments. This application is useful for any business that needs to keep track of their employees, roles, and departments.
 ## Requirements
     inquirer: "^8.2.4",
-    mysql2: "^2.2.5"
+    mysql2: "^2.2.5",
+    "console.table": "^0.10.0"
 
 ## Usage
-Node, JSON, JavaScript
+Node, JavaScript
 ## Contact-Info
 * Username: jakelipscomb (https://github.com/jakelipscomb/)
 * Email: jlipscombtx95@gmail.com
@@ -47,6 +48,10 @@ Quit MySQL
 Run application with
 
     node server.js
+
+or
+
+    npm start
 
 This will run the application locally within the `command line`.
 
